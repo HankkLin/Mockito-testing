@@ -80,14 +80,17 @@ public class Prerequisite {
     public boolean isSatisfiedBy(Student student) {
         //TODO: update method to account for student's currently taking the course
         for (Course course: requiredCourses.keySet()) {
-            var minimumGrade = requiredCourses.get(course);
-            var optionalTranscriptGrade = student.getBestGrade(course);
-            if (optionalTranscriptGrade.isEmpty()) {
-                return false;
-            }
-            var transcriptGrade = optionalTranscriptGrade.get();
-            if (!transcriptGrade.greaterThanOrEqualTo(minimumGrade)) {
-                return false;
+            if(!(student.isEnrolledInCourse(course))){
+                var minimumGrade = requiredCourses.get(course);
+                var optionalTranscriptGrade = student.getBestGrade(course);
+                System.out.println(optionalTranscriptGrade);
+                if (optionalTranscriptGrade.isEmpty()) {
+                    return false;
+                }
+                var transcriptGrade = optionalTranscriptGrade.get();
+                if (!transcriptGrade.greaterThanOrEqualTo(minimumGrade)) {
+                    return false;
+                }
             }
         }
         return true;
