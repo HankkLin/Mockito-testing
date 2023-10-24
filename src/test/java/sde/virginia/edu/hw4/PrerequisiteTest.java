@@ -7,6 +7,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -112,5 +113,22 @@ class PrerequisiteTest {
         prerequisite = new Prerequisite(requiredCourses);
 
         assertFalse(prerequisite.isSatisfiedBy(student));
+    }
+    @Mock
+    private Set<Section> mockSectionSet;
+    @Mock
+    private Section mockSection;
+    @Mock
+    private Course mockCourse;
+    @Test
+    void isMetBy_true_enrolling(){
+        var student = mock(Student.class);
+        when(student.getBestGrade(dmt1)).thenReturn(Optional.of(Grade.C_MINUS));
+        when(student.isEnrolledInCourse(dsa1)).thenReturn(true);
+
+        requiredCourses = Map.of(dsa1, Grade.C_MINUS, dmt1, Grade.C_MINUS);
+        prerequisite = new Prerequisite(requiredCourses);
+
+        assertTrue(prerequisite.isSatisfiedBy(student));
     }
 }
