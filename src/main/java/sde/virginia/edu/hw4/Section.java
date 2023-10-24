@@ -41,38 +41,32 @@ public class Section {
     /**
      * The maximum number of students that can be enrolled in the course
      */
-    private int enrollmentCapacity;
+    //private int enrollmentCapacity;
 
     /**
      * The maximum number of students that can be wait listed in the course
      */
-    private int waitListCapacity;
+    //private int waitListCapacity;
 
     /**
      * The set of students enrolled in the course
      */
-    private final Set<Student> enrolledStudents;
+    //private final Set<Student> enrolledStudents;
 
     /**
      * The list of students on the wait list, ordered as a queue, where the student
      * in the list the longest is first (index 0)
      */
-    private final List<Student> waitListedStudents;
+    //private final List<Student> waitListedStudents;
 
-    private EnrollmentStatus enrollmentStatus;
-
-    public Section(int courseRegistrationNumber, int sectionNumber, Course course, Semester semester, Location location,
-                   TimeSlot timeSlot, Lecturer lecturer, int enrollmentCapacity, int waitListCapacity) {
-        this(courseRegistrationNumber, sectionNumber, course, semester, location, timeSlot, lecturer,
-                enrollmentCapacity, waitListCapacity, new HashSet<>(), new ArrayList<>(), EnrollmentStatus.OPEN);
-    }
+    //private EnrollmentStatus enrollmentStatus;
+    private Enrollment enrollment;
 
     public Section(int courseRegistrationNumber, int sectionNumber, Course course, Semester semester, Location location,
-                   TimeSlot timeSlot, Lecturer lecturer, int enrollmentCapacity, int waitListCapacity,
-                   Set<Student> enrolledStudents, List<Student> waitListedStudents, EnrollmentStatus enrollmentStatus) {
+                   TimeSlot timeSlot, Lecturer lecturer, Enrollment enrollment) {
 
         validateInputs(courseRegistrationNumber, sectionNumber, course, semester, location, timeSlot, lecturer,
-                enrollmentCapacity, waitListCapacity, enrolledStudents, waitListedStudents, enrollmentStatus);
+                enrollment);
 
         this.courseRegistrationNumber = courseRegistrationNumber;
         this.sectionNumber = sectionNumber;
@@ -81,25 +75,24 @@ public class Section {
         this.location = location;
         this.timeSlot = timeSlot;
         this.lecturer = lecturer;
-        this.enrollmentCapacity = enrollmentCapacity;
-        this.waitListCapacity = waitListCapacity;
-        this.enrolledStudents = enrolledStudents;
-        this.waitListedStudents = waitListedStudents;
-        this.enrollmentStatus = enrollmentStatus;
+        this.enrollment = enrollment;
+        //this.enrollmentCapacity = enrollmentCapacity;
+        //this.waitListCapacity = waitListCapacity;
+        //this.enrolledStudents = enrolledStudents;
+        //this.waitListedStudents = waitListedStudents;
+        //this.enrollmentStatus = enrollmentStatus;
     }
 
-    private void validateInputs(int courseRegistrationNumber, int sectionNumber, Course course, Semester semester, Location location, TimeSlot timeSlot, Lecturer lecturer, int enrollmentCapacity, int waitListCapacity, Set<Student> enrolledStudents, List<Student> waitListedStudents, EnrollmentStatus enrollmentStatus) {
+    private void validateInputs(int courseRegistrationNumber, int sectionNumber, Course course, Semester semester, Location location, TimeSlot timeSlot, Lecturer lecturer, Enrollment enrollment) {
         if (courseRegistrationNumber < 0 || sectionNumber < 0 || course == null || semester == null ||
-                location == null || timeSlot == null || lecturer == null || enrollmentCapacity < 0 ||
-                waitListCapacity < 0 || enrolledStudents == null || waitListedStudents == null ||
-                enrollmentStatus == null) {
+                location == null || timeSlot == null || lecturer == null || enrollment == null) {
             throw new IllegalArgumentException("Invalid Section Initialization");
         }
 
-        if (enrollmentCapacity > location.roomCapacity()) {
+        if (enrollment.getEnrollmentCapacity() > location.roomCapacity()) {
             throw new IllegalArgumentException(String.format(
                     "Enrollment capacity: %d excedes the location fire code capacity %d",
-                    enrollmentCapacity, location.roomCapacity()));
+                    enrollment.getEnrollmentCapacity(), location.roomCapacity()));
         }
     }
 
@@ -174,7 +167,7 @@ public class Section {
      * @return the number of students which can be enrolled in the course.
      */
     public int getEnrollmentCapacity() {
-        return enrollmentCapacity;
+        return enrollment.getEnrollmentCapacity();
     }
 
     /**
@@ -194,7 +187,7 @@ public class Section {
             throw new IllegalArgumentException("New enrollment capacity: " + enrollmentCapacity +
                     " is too large for " + location + ". Cannot change enrollment capacity for: " + this);
         }
-        this.enrollmentCapacity = enrollmentCapacity;
+        enrollment.setEnrollmentCapacity(enrollmentCapacity);
     }
 
     /**
@@ -202,11 +195,11 @@ public class Section {
      * @return the number of students currently enrolled.
      */
     public int getEnrollmentSize() {
-        return enrolledStudents.size();
+        return enrollment.getEnrollmentSize();
     }
 
     public boolean isEnrollmentFull() {
-        return getEnrollmentSize() >= enrollmentCapacity;
+        return getEnrollmentSize() >= enrollment.getEnrollmentCapacity();
     }
 
     /**
@@ -214,7 +207,7 @@ public class Section {
      * @return an unmodifiable {@link Set} of students enrolled in the course.
      */
     public Set<Student> getEnrolledStudents() {
-        return Collections.unmodifiableSet(enrolledStudents);
+        return Collections.unmodifiableSet(enrollment.getEnrolledStudents());
     }
 
     /**
@@ -231,11 +224,10 @@ public class Section {
             throw new IllegalStateException(
                     "Enrollment full. Cannot add student: " + student + " to enrollment for " + this);
         }
-        if (enrolledStudents.contains(student)) {
+        if (enrollment.getEnrolledStudents().contains(student)) {
             throw new IllegalArgumentException("Student: " + student + " is already enrolled in the section " + this);
         }
-
-        enrolledStudents.add(student);
+        enrollment.addStudentToEnrollment(student);
     }
 
     /**
@@ -244,7 +236,7 @@ public class Section {
      * @return true if the student is enrolled, false if wait listed or not enrolled at all.
      */
     public boolean isStudentEnrolled(Student student) {
-        return enrolledStudents.contains(student);
+        return enrollment.getEnrolledStudents().contains(student);
     }
 
     /**
@@ -252,11 +244,11 @@ public class Section {
      * @param student the student to be removed from the section enrollment
      */
     public void removeStudentFromEnrolled(Student student) {
-        if (!enrolledStudents.contains(student)) {
+        if (!enrollment.getEnrolledStudents().contains(student)) {
             throw new IllegalArgumentException(
                     "Student: " + student + " is not enrolled in " + this);
         }
-        enrolledStudents.remove(student);
+        enrollment.removeStudentFromEnrolled(student);
     }
 
     /**
@@ -264,10 +256,10 @@ public class Section {
      * @return the number of students which can be waitlisted in the course.
      */
     public int getWaitListCapacity() {
-        if (waitListCapacity < 0) {
+        if (enrollment.getWaitListCapacity() < 0) {
             throw new IllegalArgumentException("Enrollment Capacity cannot be negative");
         }
-        return waitListCapacity;
+        return enrollment.getWaitListCapacity();
     }
 
     /**
@@ -275,7 +267,7 @@ public class Section {
      * @return the number of students currently wait listed.
      */
     public int getWaitListSize() {
-        return waitListedStudents.size();
+        return enrollment.getWaitListedStudents().size();
     }
 
     /**
@@ -283,7 +275,7 @@ public class Section {
      * @return true if the wait list is full or over capacity.
      */
     public boolean isWaitListFull() {
-        return getWaitListSize() >= waitListCapacity;
+        return getWaitListSize() >= enrollment.getWaitListCapacity();
     }
 
     /**
@@ -295,7 +287,7 @@ public class Section {
         if (waitListCapacity < 0) {
             throw new IllegalArgumentException("Cannot have negative capacity");
         }
-        this.waitListCapacity = waitListCapacity;
+        enrollment.setWaitListCapacity(waitListCapacity);
     }
 
     /**
@@ -303,7 +295,7 @@ public class Section {
      * @return an unmodifiable {@link List} of students waitListed in the course.
      */
     public List<Student> getWaitListedStudents() {
-        return Collections.unmodifiableList(waitListedStudents);
+        return Collections.unmodifiableList(enrollment.getWaitListedStudents());
     }
 
     /**
@@ -311,10 +303,10 @@ public class Section {
      * @return the first student on the wait list.
      */
     public Student getFirstStudentOnWaitList() {
-        if (waitListedStudents.isEmpty()) {
+        if (enrollment.getWaitListedStudents().isEmpty()) {
             throw new IllegalStateException("Wait list is empty for section " + this);
         }
-        return waitListedStudents.get(0);
+        return enrollment.getWaitListedStudents().get(0);
     }
 
     /**
@@ -335,14 +327,14 @@ public class Section {
         if (isWaitListFull()) {
             throw new IllegalStateException("Wait list is full. Cannot ads student: " + student + " to wait list for " + this);
         }
-        if (enrolledStudents.contains(student)) {
+        if (enrollment.getEnrolledStudents().contains(student)) {
             throw new IllegalArgumentException("Student " + student + " is already enrolled in section " + this);
         }
-        if (waitListedStudents.contains(student)) {
+        if (enrollment.getWaitListedStudents().contains(student)) {
             throw new IllegalArgumentException("Student " + student + " is already on the waitlist for section " + this);
         }
 
-        waitListedStudents.add(student);
+        enrollment.addStudentToWaitList(student);
     }
 
     /**
@@ -351,7 +343,7 @@ public class Section {
      * @return true if the student is wait-listed, false if enrolled or not enrolled at all.
      */
     public boolean isStudentWaitListed(Student student) {
-        return waitListedStudents.contains(student);
+        return enrollment.getWaitListedStudents().contains(student);
     }
 
     /**
@@ -360,23 +352,23 @@ public class Section {
      * @throws IllegalArgumentException if the student is not on the wait list.
      */
     public void removeStudentFromWaitList(Student student) {
-        if (!waitListedStudents.contains(student)) {
+        if (!enrollment.getWaitListedStudents().contains(student)) {
             throw new IllegalArgumentException(
                     "Student: " + student + " is not on wait list for " + this);
         }
-        waitListedStudents.remove(student);
+        enrollment.removeStudentFromWaitList(student);
     }
 
     public boolean isEnrollmentOpen() {
-        return enrollmentStatus == EnrollmentStatus.OPEN;
+        return enrollment.getEnrollmentStatus() == EnrollmentStatus.OPEN;
     }
 
     public EnrollmentStatus getEnrollmentStatus() {
-        return enrollmentStatus;
+        return enrollment.getEnrollmentStatus();
     }
 
     public void setEnrollmentStatus(EnrollmentStatus enrollmentStatus) {
-        this.enrollmentStatus = enrollmentStatus;
+        enrollment.setEnrollmentStatus(enrollmentStatus);
     }
 
     @Override

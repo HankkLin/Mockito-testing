@@ -24,6 +24,7 @@ public class SectionTest {
     private Semester semester;
 
     private Location location;
+    private Enrollment enrollment;
 
     private TimeSlot timeSlot;
     @Mock
@@ -38,9 +39,9 @@ public class SectionTest {
         semester = new Semester(Term.FALL, 2023);
         location = new Location("Nau Hall", "101", 245);
         timeSlot = new TimeSlot(TimeSlot.TUESDAY_THURSDAY, 12, 30, 13, 45);
+        enrollment = new Enrollment(245, 199, enrolledStudents, waitListedStudents, EnrollmentStatus.OPEN);
 
-        section = new Section(12345, 1, course, semester, location, timeSlot, lecturer,
-                245, 199, enrolledStudents, waitListedStudents, EnrollmentStatus.OPEN);
+        section = new Section(12345, 1, course, semester, location, timeSlot, lecturer,enrollment);
     }
 
 
