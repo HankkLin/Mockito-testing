@@ -83,8 +83,28 @@ public class CatalogService {
      * @see Section#getWaitListSize()
      */
     public AddSectionResult add(Section section) {
-        return null;
-        //TODO: implement and test
+        if(catalog.contains(section)){
+            return AddSectionResult.FAILED_SECTION_ALREADY_EXISTS;
+        }
+        if(!(catalog.getSectionByCRN(section.getCourseRegistrationNumber()).equals(Optional.empty()))){
+            return AddSectionResult.FAILED_CRN_CONFLICT;
+        }
+        var sectionSet = catalog.getSections();
+        for(Section existSection: sectionSet){
+            if(section.overlapsWith(existSection.getTimeSlot())) {
+                if (section.getLocation().equals(existSection.getLocation())) {
+                    return AddSectionResult.FAILED_LOCATION_CONFLICT;
+                }
+                if (section.getLecturer().equals(existSection.getLecturer())) {
+                    return AddSectionResult.FAILED_LECTURER_CONFLICT;
+                }
+            }
+        }
+        if(section.getEnrollmentSize()!=0 || section.getWaitListSize()!=0){
+            return AddSectionResult.FAILED_ENROLLMENT_NOT_EMPTY;
+        }
+        catalog.add(section);
+        return AddSectionResult.SUCCESSFUL;
     }
 
 

@@ -67,7 +67,6 @@ class CatalogTest {
     @Test
     void add_exception() {
         when(sectionSde.getSemester()).thenReturn(new Semester(Term.SPRING, 2023));
-
         assertThrows(IllegalArgumentException.class, () -> catalog.add(sectionSde));
 
         verify(sections, never()).add(sectionSde);
