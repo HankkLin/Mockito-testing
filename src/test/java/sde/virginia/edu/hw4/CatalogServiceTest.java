@@ -34,12 +34,14 @@ public class CatalogServiceTest {
     void AddSectionResult_FAILED_SECTION_ALREADY_EXISTS(){
         when(catalog.contains(sectionGoingToBeAdd)).thenReturn(true);
         assertEquals(CatalogService.AddSectionResult.FAILED_SECTION_ALREADY_EXISTS,catalogService.add(sectionGoingToBeAdd));
+        verify(catalog,times(0)).add(sectionGoingToBeAdd);
     }
     @Test
     void AddSectionResult_FAILED_CRN_CONFLICT(){
         when(sectionGoingToBeAdd.getCourseRegistrationNumber()).thenReturn(1);
         when(catalog.getSectionByCRN(1)).thenReturn(Optional.of(section));
         assertEquals(CatalogService.AddSectionResult.FAILED_CRN_CONFLICT,catalogService.add(sectionGoingToBeAdd));
+        verify(catalog,times(0)).add(sectionGoingToBeAdd);
     }
     @Test
     void AddSectionResult_FAILED_LOCATION_CONFLICT(){
@@ -49,6 +51,7 @@ public class CatalogServiceTest {
         when(section.getLocation()).thenReturn(location);
 
         assertEquals(CatalogService.AddSectionResult.FAILED_LOCATION_CONFLICT,catalogService.add(sectionGoingToBeAdd));
+        verify(catalog,times(0)).add(sectionGoingToBeAdd);
     }
     @Test
     void AddSectionResult_FAILED_LECTURER_CONFLICT(){
@@ -62,20 +65,28 @@ public class CatalogServiceTest {
         when(section.getLecturer()).thenReturn(lecturer);
 
         assertEquals(CatalogService.AddSectionResult.FAILED_LECTURER_CONFLICT,catalogService.add(sectionGoingToBeAdd));
+        verify(catalog,times(0)).add(sectionGoingToBeAdd);
     }
     @Test
     void AddSectionResult_FAILED_ENROLLMENT_NOT_EMPTY_ENROLL(){
         when(sectionGoingToBeAdd.getEnrollmentSize()).thenReturn(1);
         assertEquals(CatalogService.AddSectionResult.FAILED_ENROLLMENT_NOT_EMPTY,catalogService.add(sectionGoingToBeAdd));
+        verify(catalog,times(0)).add(sectionGoingToBeAdd);
     }
     @Test
     void AddSectionResult_FAILED_ENROLLMENT_NOT_EMPTY_WAITLIST(){
         when(sectionGoingToBeAdd.getWaitListSize()).thenReturn(1);
         assertEquals(CatalogService.AddSectionResult.FAILED_ENROLLMENT_NOT_EMPTY,catalogService.add(sectionGoingToBeAdd));
+        verify(catalog,times(0)).add(sectionGoingToBeAdd);
     }
     @Test
     void AddSectionResult_SUCCESSFUL(){
         assertEquals(CatalogService.AddSectionResult.SUCCESSFUL,catalogService.add(sectionGoingToBeAdd));
+        verify(catalog).add(sectionGoingToBeAdd);
+    }
+    @Test
+    void removeSection_catalog(){
+
     }
 
 
