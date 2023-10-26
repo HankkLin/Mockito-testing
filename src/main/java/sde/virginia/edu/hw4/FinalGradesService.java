@@ -18,6 +18,14 @@ public class FinalGradesService {
      * @see Student#addGrade(Section, Grade)
      */
     public void uploadFinalGrades(Section section, Map<Student, Grade> finalGrades) {
-        //TODO: implement and test
+        for(Map.Entry<Student, Grade> studentGradePair: finalGrades.entrySet()){
+            Student student = studentGradePair.getKey();
+            Grade grade = studentGradePair.getValue();
+            student.addGrade(section,grade);
+        }
+//        for(Student student: finalGrades.keySet()){
+//            Grade grade = finalGrades.get(student);
+//            student.addGrade(section,grade);
+//        }
     }
 }
