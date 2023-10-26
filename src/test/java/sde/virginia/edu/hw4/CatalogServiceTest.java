@@ -113,5 +113,17 @@ public class CatalogServiceTest {
         }
     }
 
+    @Test
+    void closeAllSection(){
+        when(catalog.getSections()).thenReturn(new HashSet<>(Set.of(section)));
+        when(section.getEnrollmentStatus()).thenReturn(EnrollmentStatus.CLOSED);
+
+        catalogService.closeAllSection();
+        for(Section closingSection: catalog.getSections()){
+            System.out.println("Sdfd");
+            assertEquals(EnrollmentStatus.CLOSED,closingSection.getEnrollmentStatus());
+        }
+    }
+
 
 }

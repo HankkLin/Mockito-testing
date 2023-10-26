@@ -149,6 +149,8 @@ public class CatalogService {
      */
     public void closeAllSection() {
         //TODO: implement and test
-
+        for(Section section:catalog.getSections()){
+            section.setEnrollmentStatus(EnrollmentStatus.CLOSED);
+        }
     }
 }
