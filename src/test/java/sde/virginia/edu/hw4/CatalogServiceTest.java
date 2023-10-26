@@ -98,8 +98,8 @@ public class CatalogServiceTest {
         catalogService.removeSection(sectionGoingToBeRemove);
         for(Student enrollStudent: sectionGoingToBeRemove.getEnrolledStudents()){
             verify(enrollStudent).removeEnrolledSection(sectionGoingToBeRemove);
+            verify(sectionGoingToBeRemove).removeStudentFromEnrolled(enrollStudent);
         }
-        assertEquals(new HashSet<>(Set.of()), sectionGoingToBeRemove.getEnrolledStudents());
     }
     @Test
     void removeSection_studentWaitList(){
@@ -109,8 +109,8 @@ public class CatalogServiceTest {
         catalogService.removeSection(sectionGoingToBeRemove);
         for(Student waitListStudent: sectionGoingToBeRemove.getWaitListedStudents()){
             verify(waitListStudent).removeWaitListedSection(sectionGoingToBeRemove);
+            verify(sectionGoingToBeRemove).removeStudentFromWaitList(waitListStudent);
         }
-        //assertEquals(Collections.emptyList(), sectionGoingToBeRemove.getWaitListedStudents());
     }
 
 

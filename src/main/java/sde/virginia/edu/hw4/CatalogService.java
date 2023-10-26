@@ -128,11 +128,12 @@ public class CatalogService {
         var sectionExist=catalog.remove(section);
         if(sectionExist) {
             for (Student student : section.getEnrolledStudents()) {
+                section.removeStudentFromEnrolled(student);
                 student.removeEnrolledSection(section);
             }
-            section.getEnrolledStudents().clear();
             for (Student student : section.getWaitListedStudents()) {
                 student.removeWaitListedSection(section);
+                section.removeStudentFromWaitList(student);
             }
         }
         else{
