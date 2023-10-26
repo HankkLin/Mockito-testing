@@ -69,8 +69,35 @@ public class RegistrationService {
      * @see Student#getCreditLimit() 
      */
     public RegistrationResult register(Student student, Section section) {
-        return null;
-        //TODO: implement and test
+        if(student.isEnrolledInSection(section)){
+            return RegistrationResult.FAILED_ALREADY_IN_COURSE;
+        }
+        if(!section.isEnrollmentOpen()){
+            return RegistrationResult.FAILED_ENROLLMENT_CLOSED;
+        }
+        if(section.isEnrollmentFull()&&section.isWaitListFull()){
+            return RegistrationResult.FAILED_SECTION_FULL;
+        }
+        for(Section enrolledSection: student.getEnrolledSections()){
+            if(enrolledSection.overlapsWith(section.getTimeSlot())){
+                return RegistrationResult.FAILED_SCHEDULE_CONFLICT;
+            }
+        }
+        Prerequisite prerequisite = section.getCourse().getPrerequisite();
+        if(!prerequisite.isSatisfiedBy(student)){
+            return RegistrationResult.FAILED_PREREQUISITE_NOT_MET;
+        }
+        int totalCredits = 0;
+        for(Section tempSection:student.getEnrolledSections()){
+            totalCredits += tempSection.getCourse().getCreditHours();
+        }
+        if(totalCredits>=student.getCreditLimit()){
+            return RegistrationResult.FAILED_CREDIT_LIMIT_VIOLATION;
+        }
+        if(section.isEnrollmentFull()){
+            return RegistrationResult.SUCCESS_WAIT_LISTED;
+        }
+        return RegistrationResult.SUCCESS_ENROLLED;
     }
 
     /**

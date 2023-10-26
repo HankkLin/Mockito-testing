@@ -120,7 +120,6 @@ public class CatalogServiceTest {
 
         catalogService.closeAllSection();
         for(Section closingSection: catalog.getSections()){
-            System.out.println("Sdfd");
             assertEquals(EnrollmentStatus.CLOSED,closingSection.getEnrollmentStatus());
         }
     }
