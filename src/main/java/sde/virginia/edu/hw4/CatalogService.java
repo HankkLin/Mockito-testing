@@ -1,6 +1,8 @@
 package sde.virginia.edu.hw4;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class CatalogService {
@@ -121,7 +123,21 @@ public class CatalogService {
      * @see Student#removeWaitListedSection(Section)
      */
     public void removeSection(Section section) {
+
         //TODO: implement and test
+        var sectionExist=catalog.remove(section);
+        if(sectionExist) {
+            for (Student student : section.getEnrolledStudents()) {
+                student.removeEnrolledSection(section);
+            }
+            section.getEnrolledStudents().clear();
+            for (Student student : section.getWaitListedStudents()) {
+                student.removeWaitListedSection(section);
+            }
+        }
+        else{
+            throw new NoSuchElementException(section.toString()+ " is not in the catalog.");
+        }
     }
 
 
@@ -132,5 +148,6 @@ public class CatalogService {
      */
     public void closeAllSection() {
         //TODO: implement and test
+
     }
 }

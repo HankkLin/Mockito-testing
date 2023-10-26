@@ -4,11 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -17,9 +16,11 @@ import static org.mockito.Mockito.*;
 public class CatalogServiceTest {
     private CatalogService catalogService;
     @Mock
-    Section section, sectionGoingToBeAdd;
+    Section section, sectionGoingToBeAdd, sectionGoingToBeRemove;
     @Mock
     Catalog catalog;
+    @Mock
+    Student student;
     Location location, newLocation;
     //can't mock location, don't know why
     @Mock
@@ -85,8 +86,31 @@ public class CatalogServiceTest {
         verify(catalog).add(sectionGoingToBeAdd);
     }
     @Test
-    void removeSection_catalog(){
+    void removeSection_sectionNotFound(){
+        assertThrows(NoSuchElementException.class,()->catalogService.removeSection(sectionGoingToBeRemove));
+        verify(catalog).remove(sectionGoingToBeRemove);
+    }
+    @Test
+    void removeSection_studentEnroll(){
+        when(catalog.remove(sectionGoingToBeRemove)).thenReturn(true);
+        when(sectionGoingToBeRemove.getEnrolledStudents()).thenReturn(new HashSet<>(Set.of(student)));
 
+        catalogService.removeSection(sectionGoingToBeRemove);
+        for(Student enrollStudent: sectionGoingToBeRemove.getEnrolledStudents()){
+            verify(enrollStudent).removeEnrolledSection(sectionGoingToBeRemove);
+        }
+        assertEquals(new HashSet<>(Set.of()), sectionGoingToBeRemove.getEnrolledStudents());
+    }
+    @Test
+    void removeSection_studentWaitList(){
+        when(catalog.remove(sectionGoingToBeRemove)).thenReturn(true);
+        when(sectionGoingToBeRemove.getWaitListedStudents()).thenReturn(Collections.singletonList(student));
+
+        catalogService.removeSection(sectionGoingToBeRemove);
+        for(Student waitListStudent: sectionGoingToBeRemove.getWaitListedStudents()){
+            verify(waitListStudent).removeWaitListedSection(sectionGoingToBeRemove);
+        }
+        //assertEquals(Collections.emptyList(), sectionGoingToBeRemove.getWaitListedStudents());
     }
 
 
