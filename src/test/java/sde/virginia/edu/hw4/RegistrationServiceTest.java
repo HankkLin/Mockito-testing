@@ -124,6 +124,7 @@ public class RegistrationServiceTest {
         when(course.getCreditHours()).thenReturn(0);
 
         assertEquals(RegistrationService.RegistrationResult.SUCCESS_WAIT_LISTED,registrationService.register(student, section));
+        verify(student).addWaitListedSection(section);
     }
     @Test
     void RegistrationResult_SUCCESS_ENROLLED(){
@@ -137,6 +138,7 @@ public class RegistrationServiceTest {
         when(course.getCreditHours()).thenReturn(0);
 
         assertEquals(RegistrationService.RegistrationResult.SUCCESS_ENROLLED,registrationService.register(student, section));
+        verify(student).addEnrolledSection(section);
     }
 
 }

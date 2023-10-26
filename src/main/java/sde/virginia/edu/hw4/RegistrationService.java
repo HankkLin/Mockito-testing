@@ -95,8 +95,10 @@ public class RegistrationService {
             return RegistrationResult.FAILED_CREDIT_LIMIT_VIOLATION;
         }
         if(section.isEnrollmentFull()){
+            student.addWaitListedSection(section);
             return RegistrationResult.SUCCESS_WAIT_LISTED;
         }
+        student.addEnrolledSection(section);
         return RegistrationResult.SUCCESS_ENROLLED;
     }
 
