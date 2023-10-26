@@ -15,7 +15,7 @@ public class RegistrationServiceTest {
 
     private RegistrationService registrationService;
     @Mock
-    Student student;
+    Student student, firstWaitListStudent;
     @Mock
     Section section, enrolledSection1, enrolledSection2;
     @Mock
@@ -28,6 +28,7 @@ public class RegistrationServiceTest {
     void setUp(){
         registrationService = new RegistrationService();
         student = mock(Student.class);
+        firstWaitListStudent = mock(Student.class);
         section = mock(Section.class);
         enrolledSection1 = mock(Section.class);
         enrolledSection2 = mock(Section.class);
@@ -139,6 +140,48 @@ public class RegistrationServiceTest {
 
         assertEquals(RegistrationService.RegistrationResult.SUCCESS_ENROLLED,registrationService.register(student, section));
         verify(student).addEnrolledSection(section);
+    }
+
+    @Test
+    void DROP_ENROLLMENT_FALSE(){
+        when(student.isEnrolledInSection(section)).thenReturn(false);
+        when(student.isWaitListedInSection(section)).thenReturn(false);
+        assertFalse(registrationService.drop(student,section));
+    }
+    @Test
+    void DROP_ENROLLMENT_WAITLIST(){
+        when(student.isEnrolledInSection(section)).thenReturn(false);
+        when(student.isWaitListedInSection(section)).thenReturn(true);
+
+        assertTrue(registrationService.drop(student,section));
+        verify(student).removeWaitListedSection(section);
+        verify(section).removeStudentFromWaitList(student);
+    }
+    @Test
+    void DROP_ENROLLMENT_ENROLLMENT_CLOSE(){
+        when(student.isEnrolledInSection(section)).thenReturn(true);
+        when(section.isEnrollmentOpen()).thenReturn(false);
+
+        assertTrue(registrationService.drop(student,section));
+        verify(student).removeEnrolledSection(section);
+        verify(student).addGrade(section, Grade.DROP);
+        verify(section).removeStudentFromEnrolled(student);
+    }
+    @Test
+    void DROP_ENROLLMENT_ENROLLMENT_OPEN(){
+        when(student.isEnrolledInSection(section)).thenReturn(true);
+        when(section.isEnrollmentOpen()).thenReturn(true);
+        when(section.getFirstStudentOnWaitList()).thenReturn(firstWaitListStudent);
+
+        assertTrue(registrationService.drop(student,section));
+        verify(student).removeEnrolledSection(section);
+        verify(student).addGrade(section, Grade.DROP);
+        verify(section).removeStudentFromEnrolled(student);
+
+        verify(section).addStudentToEnrollment(firstWaitListStudent);
+        verify(section).removeStudentFromWaitList(firstWaitListStudent);
+        verify(firstWaitListStudent).removeWaitListedSection(section);
+        verify(firstWaitListStudent).addEnrolledSection(section);
     }
 
 }

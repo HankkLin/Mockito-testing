@@ -130,7 +130,24 @@ public class RegistrationService {
      * @see Student#removeWaitListedSection(Section)
      */
     public boolean drop(Student student, Section section) {
+        if(student.isEnrolledInSection(section)){
+            student.removeEnrolledSection(section);
+            student.addGrade(section,Grade.DROP);
+            section.removeStudentFromEnrolled(student);
+            if(section.isEnrollmentOpen()){
+                Student firstWaitListStudent = section.getFirstStudentOnWaitList();
+                section.addStudentToEnrollment(firstWaitListStudent);
+                section.removeStudentFromWaitList(firstWaitListStudent);
+                firstWaitListStudent.removeWaitListedSection(section);
+                firstWaitListStudent.addEnrolledSection(section);
+            }
+            return true;
+        }
+        if(student.isWaitListedInSection(section)){
+            student.removeWaitListedSection(section);
+            section.removeStudentFromWaitList(student);
+            return true;
+        }
         return false;
-        //TODO: implement and test
     }
 }
