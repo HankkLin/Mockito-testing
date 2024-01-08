@@ -9,17 +9,3 @@
 
 There is no main class to this function. You won't be able to build a .jar file.
 
-## Contributions
-
-### Han
-
-* All the stuff
-
-
-* Author 3 contributions
-* as a bulleted list
-* each line starts with an asterisk and a space
-
-## Issues
-
-List any known issues (bugs, incorrect behavior, etc.) at the time of submission.
